@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📱 VacunaAPP - Calendario Personalizado para Gestantes</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+        }
+        
+        .section-title {
+            font-size: 20px;
+            color: #333;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        .input-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #555;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.2s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .calendario {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .vacuna-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+        }
+        
+        .vacuna-card:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+        
+        .vacuna-card.recomendada {
+            border-color: #4caf50;
+            background: #f1f8f4;
+        }
+        
+        .vacuna-card.considerar {
+            border-color: #ff9800;
+            background: #fff8f0;
+        }
+        
+        .vacuna-card.contraindicada {
+            border-color: #f44336;
+            background: #fef5f5;
+        }
+        
+        .vacuna-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .vacuna-icon {
+            font-size: 32px;
+            margin-right: 15px;
+        }
+        
+        .vacuna-title {
+            flex: 1;
+        }
+        
+        .vacuna-title h3 {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .badge.alta { background: #4caf50; color: white; }
+        .badge.media { background: #ff9800; color: white; }
+        .badge.baja { background: #9e9e9e; color: white; }
+        
+        .dosis-timeline {
+            margin: 15px 0;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+        }
+        
+        .dosis-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            border-left: 3px solid #667eea;
+            padding-left: 15px;
+            margin-bottom: 10px;
+        }
+        
+        .dosis-item .fecha {
+            font-weight: 600;
+            color: #667eea;
+            font-size: 16px;
+            margin-right: 15px;
+            min-width: 120px;
+        }
+        
+        .dosis-item .info {
+            flex: 1;
+        }
+        
+        .alerta {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .alerta-icon {
+            font-size: 20px;
+            margin-right: 10px;
+        }
+        
+        .observaciones {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #666;
+        }
+        
+        .summary-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .summary-box h3 {
+            margin-bottom: 10px;
+        }
+        
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .summary-item:last-child {
+            border-bottom: none;
+        }
+        
+        .export-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+        
+        .export-buttons button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-pdf {
+            background: #f44336;
+            color: white;
+        }
+        
+        .btn-email {
+            background: #2196f3;
+            color: white;
+        }
+        
+        .btn-reset {
+            background: #9e9e9e;
+            color: white;
+        }
+        
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        .referencias {
+            font-size: 12px;
+            color: #666;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .collapse-btn {
+            background: none;
+            border: none;
+            color: #667eea;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 10px;
+            padding: 5px 0;
+        }
+        
+        .collapse-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        
+        .collapse-content.active {
+            max-height: 500px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💉 VacunaAPP - Calendario Personalizado</h1>
+            <p>Prototipo para Gestantes | Versión 3.0</p>
+        </div>
+        
+        <div class="content">
+            <!-- FORMULARIO DE ENTRADA -->
+            <div id="formulario" class="section">
+                <div class="section-title">📋 Datos de la Paciente</div>
+                
+                <div class="input-group">
+                    <label for="edad">Edad (años)</label>
+                    <input type="number" id="edad" placeholder="Ej: 28" min="15" max="55" value="28">
+                </div>
+                
+                <div class="input-group">
+                    <label for="semanas">Semanas de Gestación</label>
+                    <input type="number" id="semanas" placeholder="Ej: 24" min="1" max="42" value="24">
+                </div>
+                
+                <div class="input-group">
+                    <label for="fecha">Fecha de Generación del Calendario</label>
+                    <input type="date" id="fecha" value="">
+                </div>
+                
+                <div class="info-box">
+                    ℹ️ <strong>Nota:</strong> Este calendario calculará fechas específicas para cada dosis basándose en la fecha de hoy y las semanas de gestación.
+                </div>
+                
+                <button class="btn" onclick="generarCalendario()">
+                    🚀 Generar Calendario Personalizado
+                </button>
+            </div>
+            
+            <!-- CALENDARIO GENERADO -->
+            <div id="calendario" class="calendario section">
+                <div class="section-title">📅 Tu Calendario de Vacunación</div>
+                
+                <div id="resumen" class="summary-box"></div>
+                
+                <div id="vacunas-recomendadas"></div>
+                <div id="vacunas-considerar"></div>
+                <div id="vacunas-contraindicadas"></div>
+                
+                <div class="export-buttons">
+                    <button class="btn-pdf" onclick="exportarPDF()">📄 Exportar PDF</button>
+                    <button class="btn-email" onclick="enviarEmail()">📧 Enviar Email</button>
+                    <button class="btn-reset" onclick="resetear()">🔄 Nueva Consulta</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Establecer fecha actual por defecto
+        document.getElementById('fecha').valueAsDate = new Date();
+        
+        // BASE DE DATOS DE REGLAS (desde el Excel consolidado)
+        const REGLAS_EMBARAZO = [
+            {
+                id: "R-001",
+                vacuna: "dTpa (Difteria-Tétanos-Pertussis acelular)",
+                recomendacion: "RECOMENDADA",
+                prioridad: "ALTA",
+                numeroDosis: 1,
+                inicioEsquema: "AHORA si ≥20 semanas",
+                intervaloDosis1a2Dias: null,
+                intervaloDosis1a2Texto: "Dosis única",
+                completarAntesSemana: 36,
+                notasTiming: "Momento óptimo: sem 20-36. Si pasa sem 36, aún administrar hasta parto.",
+                beneficio: "Protege bebé contra coqueluche en primeros 6m. Pasaje transplacentario de Ac",
+                observaciones: "Momento óptimo: sem 20-36 para pasaje Ac. Si no recibió, dar en puerperio inmediato",
+                fuente: "Manual API 2023 p.271,273,279,80-81",
+                icon: "💉"
+            },
+            {
+                id: "R-002",
+                vacuna: "Influenza inactivada",
+                recomendacion: "RECOMENDADA",
+                prioridad: "ALTA",
+                numeroDosis: 1,
+                inicioEsquema: "AHORA",
+                intervaloDosis1a2Dias: null,
+                intervaloDosis1a2Texto: "Dosis única",
+                completarAntesSemana: 40,
+                notasTiming: "Administrar en cualquier trimestre durante temporada de gripe",
+                beneficio: "Embarazadas alto riesgo de complicaciones graves. Protege bebé hasta 6m",
+                observaciones: "Vacuna inactivada única segura. Reduce riesgo de muerte fetal en 51%",
+                fuente: "Manual API 2023 p.272-274,279",
+                icon: "💉"
+            },
+            {
+                id: "R-003",
+                vacuna: "VSR - Abrysvo (Virus Sincitial Respiratorio)",
+                recomendacion: "RECOMENDADA",
+                prioridad: "ALTA",
+                numeroDosis: 1,
+                inicioEsquema: "Esperar hasta semana 32-36",
+                semanasEsperar: 32,
+                intervaloDosis1a2Dias: null,
+                intervaloDosis1a2Texto: "Dosis única",
+                completarAntesSemana: 36,
+                notasTiming: "Ventana específica: solo sem 32-36. No antes ni después",
+                beneficio: "Protege bebé contra VSR (principal causa bronquiolitis) hasta 6m",
+                observaciones: "VIGILANCIA: monitorear PA (preeclampsia), trabajo parto prematuro. Aprobación reciente 2023",
+                fuente: "Manual API 2023 p.274 | FDA Aug-2023",
+                icon: "💉"
+            },
+            {
+                id: "R-004",
+                vacuna: "COVID-19 (ARNm)",
+                recomendacion: "RECOMENDADA",
+                prioridad: "ALTA",
+                numeroDosis: 2,
+                inicioEsquema: "AHORA",
+                intervaloDosis1a2Dias: 21,
+                intervaloDosis1a2Texto: "3-4 semanas (21-28 días)",
+                completarAntesSemana: 40,
+                notasTiming: "Si no completó esquema previo, iniciar ahora",
+                beneficio: "Embarazo es factor de riesgo para COVID-19 grave. Ac protegen bebé",
+                observaciones: "Vacunas ARNm preferidas. No contienen virus vivo. Anticuerpos detectables en bebé hasta 6m",
+                fuente: "Manual API 2023 p.276-278,279",
+                icon: "💉"
+            },
+            {
+                id: "R-005",
+                vacuna: "Hepatitis A",
+                recomendacion: "RECOMENDADA CON INDICACIÓN",
+                prioridad: "MEDIA",
+                numeroDosis: 2,
+                inicioEsquema: "AHORA si factor de riesgo",
+                intervaloDosis1a2Dias: 180,
+                intervaloDosis1a2Texto: "6-12 meses",
+                completarAntesSemana: null,
+                notasTiming: "Si alto riesgo, iniciar esquema. Puede continuarse post-parto",
+                beneficio: "Prevención de hepatitis A en gestantes de riesgo",
+                observaciones: "Especialmente maestras inicial, industria alimentaria, viajeros zonas endémicas",
+                fuente: "Manual API 2023 p.275,279",
+                icon: "💉"
+            },
+            {
+                id: "R-006",
+                vacuna: "Hepatitis B",
+                recomendacion: "RECOMENDADA CON INDICACIÓN",
+                prioridad: "MEDIA",
+                numeroDosis: 3,
+                inicioEsquema: "AHORA si factor de riesgo",
+                intervaloDosis1a2Dias: 30,
+                intervaloDosis1a2Texto: "1 mes (30 días)",
+                intervaloDosis2a3Dias: 150,
+                intervaloDosis2a3Texto: "5 meses después de 2da dosis",
+                completarAntesSemana: null,
+                notasTiming: "Si seronegativa y riesgo, iniciar esquema. Completar post-parto si necesario",
+                beneficio: "Prevención de transmisión vertical VHB",
+                observaciones: "Evaluar serología pre-concepcional. Sin restricciones timing vacunación-concepción",
+                fuente: "Manual API 2023 p.272,279",
+                icon: "💉"
+            },
+            {
+                id: "R-008",
+                vacuna: "Neumococo PPV23",
+                recomendacion: "CONSIDERAR",
+                prioridad: "MEDIA",
+                numeroDosis: 1,
+                inicioEsquema: "AHORA si ≥14 semanas y factor riesgo",
+                intervaloDosis1a2Dias: null,
+                intervaloDosis1a2Texto: "Dosis única",
+                completarAntesSemana: null,
+                notasTiming: "Solo si >12 semanas y comorbilidad que aumenta riesgo neumococo",
+                beneficio: "Prevención de enfermedad neumocócica invasiva en alto riesgo",
+                observaciones: "Solo PPV23 tiene datos en embarazo. Solo si cardiopatía, diabetes, asplenia",
+                fuente: "Manual API 2023 p.275,280",
+                icon: "💉"
+            },
+            {
+                id: "R-010",
+                vacuna: "HPV (Papiloma Humano)",
+                recomendacion: "CONTRAINDICADA",
+                prioridad: "NO APLICA",
+                numeroDosis: 0,
+                inicioEsquema: "POSPONER",
+                notasTiming: "Sin indicación durante embarazo. Completar post-parto",
+                beneficio: "Sin indicación urgente durante embarazo",
+                observaciones: "Si inicia esquema y queda embarazada: suspender y completar post-parto",
+                fuente: "Manual API 2023 p.276,280",
+                icon: "❌"
+            },
+            {
+                id: "R-011",
+                vacuna: "SRP (Sarampión-Rubéola-Paperas)",
+                recomendacion: "CONTRAINDICADA",
+                prioridad: "NO APLICA",
+                numeroDosis: 0,
+                inicioEsquema: "POSPONER",
+                notasTiming: "Vacuna viva. Administrar post-parto si susceptible",
+                beneficio: "Sin indicación urgente. Vacunar post-parto si susceptible",
+                observaciones: "Riesgo teórico pero no se han reportado efectos adversos. Posponer por precaución",
+                fuente: "Manual API 2023 p.271,276,277,280",
+                icon: "❌"
+            },
+            {
+                id: "R-012",
+                vacuna: "Varicela",
+                recomendacion: "CONTRAINDICADA",
+                prioridad: "NO APLICA",
+                numeroDosis: 0,
+                inicioEsquema: "POSPONER",
+                notasTiming: "Vacuna viva. Administrar post-parto si susceptible",
+                beneficio: "Sin indicación urgente. Vacunar post-parto si susceptible",
+                observaciones: "Evitar embarazo 1 mes post-vacunación. Completar post-parto si susceptible",
+                fuente: "Manual API 2023 p.271,277,280",
+                icon: "❌"
+            }
+        ];
+        
+        function generarCalendario() {
+            const edad = parseInt(document.getElementById('edad').value);
+            const semanas = parseInt(document.getElementById('semanas').value);
+            const fechaStr = document.getElementById('fecha').value;
+            const fechaBase = new Date(fechaStr);
+            
+            // Validaciones
+            if (!edad || !semanas || !fechaStr) {
+                alert('⚠️ Por favor complete todos los campos');
+                return;
+            }
+            
+            if (semanas < 1 || semanas > 42) {
+                alert('⚠️ Las semanas de gestación deben estar entre 1 y 42');
+                return;
+            }
+            
+            // Ocultar formulario y mostrar calendario
+            document.getElementById('formulario').style.display = 'none';
+            document.getElementById('calendario').style.display = 'block';
+            
+            // Generar resumen
+            generarResumen(edad, semanas, fechaBase);
+            
+            // Filtrar y generar vacunas
+            const vacunasRecomendadas = REGLAS_EMBARAZO.filter(r => r.recomendacion === "RECOMENDADA" || r.recomendacion === "RECOMENDADA CON INDICACIÓN");
+            const vacunasConsiderar = REGLAS_EMBARAZO.filter(r => r.recomendacion === "CONSIDERAR");
+            const vacunasContraindicadas = REGLAS_EMBARAZO.filter(r => r.recomendacion === "CONTRAINDICADA");
+            
+            generarSeccionVacunas('vacunas-recomendadas', '✅ VACUNAS RECOMENDADAS - ALTA PRIORIDAD', vacunasRecomendadas, fechaBase, semanas, 'recomendada');
+            generarSeccionVacunas('vacunas-considerar', '⚠️ VACUNAS A CONSIDERAR', vacunasConsiderar, fechaBase, semanas, 'considerar');
+            generarSeccionVacunas('vacunas-contraindicadas', '❌ VACUNAS CONTRAINDICADAS DURANTE EMBARAZO', vacunasContraindicadas, fechaBase, semanas, 'contraindicada');
+        }
+        
+        function generarResumen(edad, semanas, fechaBase) {
+            const fechaLimite = calcularFechaLimite(fechaBase, semanas, 36);
+            const fechaParto = calcularFechaLimite(fechaBase, semanas, 40);
+            
+            document.getElementById('resumen').innerHTML = `
+                <h3>📊 Resumen del Paciente</h3>
+                <div class="summary-item">
+                    <span>Edad:</span>
+                    <span><strong>${edad} años</strong></span>
+                </div>
+                <div class="summary-item">
+                    <span>Semanas de Gestación:</span>
+                    <span><strong>${semanas} semanas</strong></span>
+                </div>
+                <div class="summary-item">
+                    <span>Fecha de Generación:</span>
+                    <span><strong>${formatearFecha(fechaBase)}</strong></span>
+                </div>
+                <div class="summary-item">
+                    <span>Fecha Límite (Sem 36):</span>
+                    <span><strong>${formatearFecha(fechaLimite)}</strong></span>
+                </div>
+                <div class="summary-item">
+                    <span>Fecha Estimada Parto (Sem 40):</span>
+                    <span><strong>${formatearFecha(fechaParto)}</strong></span>
+                </div>
+            `;
+        }
+        
+        function generarSeccionVacunas(containerId, titulo, vacunas, fechaBase, semanasActuales, tipo) {
+            const container = document.getElementById(containerId);
+            
+            if (vacunas.length === 0) {
+                container.innerHTML = '';
+                return;
+            }
+            
+            let html = `<h3 style="margin: 30px 0 20px 0; color: #333;">${titulo}</h3>`;
+            
+            vacunas.forEach(vacuna => {
+                html += generarCardVacuna(vacuna, fechaBase, semanasActuales, tipo);
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        function generarCardVacuna(vacuna, fechaBase, semanasActuales, tipo) {
+            const esquema = calcularEsquemaDosis(vacuna, fechaBase, semanasActuales);
+            
+            let html = `
+                <div class="vacuna-card ${tipo}">
+                    <div class="vacuna-header">
+                        <div class="vacuna-icon">${vacuna.icon}</div>
+                        <div class="vacuna-title">
+                            <h3>${vacuna.vacuna}</h3>
+                            ${vacuna.prioridad !== 'NO APLICA' ? `<span class="badge ${vacuna.prioridad.toLowerCase()}">${vacuna.prioridad}</span>` : ''}
+                        </div>
+                    </div>
+                    
+                    ${esquema.dosisHTML}
+                    
+                    ${esquema.alertaHTML}
+                    
+                    <div class="observaciones">
+                        <strong>💡 Beneficio:</strong> ${vacuna.beneficio}<br>
+                        <strong>📌 Observaciones:</strong> ${vacuna.observaciones}
+                    </div>
+                    
+                    <div class="referencias">
+                        📚 <strong>Referencia:</strong> ${vacuna.fuente}
+                    </div>
+                </div>
+            `;
+            
+            return html;
+        }
+        
+        function calcularEsquemaDosis(vacuna, fechaBase, semanasActuales) {
+            let dosisHTML = '';
+            let alertaHTML = '';
+            
+            if (vacuna.numeroDosis === 0) {
+                // Vacuna contraindicada o no indicada
+                dosisHTML = `
+                    <div class="dosis-timeline">
+                        <div class="dosis-item">
+                            <div class="fecha">❌ No administrar</div>
+                            <div class="info">
+                                ${vacuna.notasTiming}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                return { dosisHTML, alertaHTML };
+            }
+            
+            // Determinar fecha de dosis 1
+            let fechaDosis1 = new Date(fechaBase);
+            let estadoDosis1 = "HOY";
+            
+            if (vacuna.semanasEsperar && semanasActuales < vacuna.semanasEsperar) {
+                const semanasEsperar = vacuna.semanasEsperar - semanasActuales;
+                const diasEsperar = semanasEsperar * 7;
+                fechaDosis1 = sumarDias(fechaBase, diasEsperar);
+                estadoDosis1 = `Esperar ${diasEsperar} días (hasta semana ${vacuna.semanasEsperar})`;
+            } else if (vacuna.inicioEsquema.includes("≥20") && semanasActuales < 20) {
+                const semanasEsperar = 20 - semanasActuales;
+                const diasEsperar = semanasEsperar * 7;
+                fechaDosis1 = sumarDias(fechaBase, diasEsperar);
+                estadoDosis1 = `Esperar hasta semana 20 (${diasEsperar} días)`;
+            }
+            
+            dosisHTML = '<div class="dosis-timeline">';
+            
+            // Dosis 1
+            dosisHTML += `
+                <div class="dosis-item">
+                    <div class="fecha">${formatearFecha(fechaDosis1)}</div>
+                    <div class="info">
+                        <strong>Dosis 1</strong> - ${estadoDosis1}<br>
+                        <small>${vacuna.intervaloDosis1a2Texto}</small>
+                    </div>
+                </div>
+            `;
+            
+            // Dosis 2
+            if (vacuna.numeroDosis >= 2 && vacuna.intervaloDosis1a2Dias) {
+                const fechaDosis2 = sumarDias(fechaDosis1, vacuna.intervaloDosis1a2Dias);
+                dosisHTML += `
+                    <div class="dosis-item">
+                        <div class="fecha">${formatearFecha(fechaDosis2)}</div>
+                        <div class="info">
+                            <strong>Dosis 2</strong> - En ${vacuna.intervaloDosis1a2Dias} días<br>
+                            <small>${vacuna.intervaloDosis1a2Texto}</small>
+                        </div>
+                    </div>
+                `;
+                
+                // Verificar si está dentro del límite temporal
+                if (vacuna.completarAntesSemana) {
+                    const fechaLimite = calcularFechaLimite(fechaBase, semanasActuales, vacuna.completarAntesSemana);
+                    if (fechaDosis2 > fechaLimite) {
+                        alertaHTML = `
+                            <div class="alerta">
+                                <div class="alerta-icon">⚠️</div>
+                                <div>
+                                    <strong>Advertencia:</strong> Dosis 2 programada después de semana ${vacuna.completarAntesSemana}. 
+                                    Considerar acelerar esquema o completar post-parto.
+                                </div>
+                            </div>
+                        `;
+                    }
+                }
+            }
+            
+            // Dosis 3
+            if (vacuna.numeroDosis >= 3 && vacuna.intervaloDosis2a3Dias) {
+                const fechaDosis2 = sumarDias(fechaDosis1, vacuna.intervaloDosis1a2Dias);
+                const fechaDosis3 = sumarDias(fechaDosis2, vacuna.intervaloDosis2a3Dias);
+                dosisHTML += `
+                    <div class="dosis-item">
+                        <div class="fecha">${formatearFecha(fechaDosis3)}</div>
+                        <div class="info">
+                            <strong>Dosis 3</strong> - En ${vacuna.intervaloDosis1a2Dias + vacuna.intervaloDosis2a3Dias} días (total)<br>
+                            <small>${vacuna.intervaloDosis2a3Texto} - Probablemente post-parto</small>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            dosisHTML += '</div>';
+            
+            // Alerta de límite temporal
+            if (!alertaHTML && vacuna.completarAntesSemana) {
+                const fechaLimite = calcularFechaLimite(fechaBase, semanasActuales, vacuna.completarAntesSemana);
+                alertaHTML = `
+                    <div class="alerta">
+                        <div class="alerta-icon">ℹ️</div>
+                        <div>
+                            <strong>Importante:</strong> Completar antes de semana ${vacuna.completarAntesSemana} 
+                            (${formatearFecha(fechaLimite)})
+                        </div>
+                    </div>
+                `;
+            }
+            
+            return { dosisHTML, alertaHTML };
+        }
+        
+        // FUNCIONES AUXILIARES
+        function sumarDias(fecha, dias) {
+            const resultado = new Date(fecha);
+            resultado.setDate(resultado.getDate() + dias);
+            return resultado;
+        }
+        
+        function calcularFechaLimite(fechaBase, semanasActuales, semanasObjetivo) {
+            const semanasRestantes = semanasObjetivo - semanasActuales;
+            const diasRestantes = semanasRestantes * 7;
+            return sumarDias(fechaBase, diasRestantes);
+        }
+        
+        function formatearFecha(fecha) {
+            const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 
+                           'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+            const dia = fecha.getDate().toString().padStart(2, '0');
+            const mes = meses[fecha.getMonth()];
+            const anio = fecha.getFullYear();
+            return `${dia}-${mes}-${anio}`;
+        }
+        
+        function exportarPDF() {
+            alert('📄 Función de exportar PDF estará disponible en la versión final.\n\nEsta funcionalidad generará un PDF con:\n• Resumen del paciente\n• Calendario completo con fechas\n• Observaciones y referencias\n• Código QR para seguimiento');
+        }
+        
+        function enviarEmail() {
+            alert('📧 Función de enviar email estará disponible en la versión final.\n\nEsta funcionalidad permitirá:\n• Enviar calendario al email del paciente\n• Configurar recordatorios automáticos\n• Adjuntar documento PDF');
+        }
+        
+        function resetear() {
+            document.getElementById('formulario').style.display = 'block';
+            document.getElementById('calendario').style.display = 'none';
+            document.getElementById('edad').value = '28';
+            document.getElementById('semanas').value = '24';
+            document.getElementById('fecha').valueAsDate = new Date();
+        }
+    </script>
+</body>
+</html>
